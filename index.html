@@ -456,23 +456,28 @@
       return;
     }
 
-    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/signup';
-    const res = await fetch(`${API}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const endpoint = authMode === 'login' ? '/auth/login' : '/auth/signup';
+      const res = await fetch(`${API}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      errorEl.textContent = data.error || 'Something went wrong.';
+      const data = await res.json();
+      if (!res.ok) {
+        errorEl.textContent = data.error || 'Something went wrong.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      localStorage.setItem('mash_token', data.token);
+      localStorage.setItem('mash_email', data.email);
+      showDashboard();
+    } catch (err) {
+      errorEl.textContent = 'Could not connect to server: ' + err.message;
       errorEl.style.display = 'block';
-      return;
     }
-
-    localStorage.setItem('mash_token', data.token);
-    localStorage.setItem('mash_email', data.email);
-    showDashboard();
   }
 
   function signOut() {
