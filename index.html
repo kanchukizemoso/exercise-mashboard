@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exercise Mashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #f8fafc;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .stat-unit {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-left: 4px;
+    }
+
+    .section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 18px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 130px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    input, select {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #f1f5f9;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    input:focus, select:focus { border-color: #38bdf8; }
+    select option { background: #1e293b; }
+
+    button {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #7dd3fc; }
+
+    button.danger {
+      background: transparent;
+      color: #f87171;
+      border: 1px solid #374151;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      border-radius: 6px;
+    }
+
+    button.danger:hover { background: #1f2937; }
+
+    button.ghost {
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    button.ghost:hover { background: #1e293b; color: #f1f5f9; }
+
+    .log-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    .log-left { display: flex; align-items: center; gap: 14px; flex: 1; }
+    .log-icon { font-size: 1.4rem; width: 36px; text-align: center; }
+    .log-name { font-weight: 600; font-size: 0.95rem; color: #f1f5f9; }
+    .log-meta { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+
+    .log-badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .badge {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    .badge.highlight {
+      background: #0c2340;
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 120px;
+      margin-top: 8px;
+    }
+
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .bar {
+      width: 100%;
+      background: #38bdf8;
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.4s;
+    }
+
+    .bar.today { background: #7dd3fc; }
+    .bar.empty { background: #1e293b; }
+    .bar-label { font-size: 0.7rem; color: #64748b; }
+
+    .empty-state {
+      color: #475569;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    /* Auth overlay */
+    #auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .auth-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 36px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .auth-box h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 6px;
+    }
+
+    .auth-box p {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    .auth-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+
+    .auth-error {
+      background: #1f0e0e;
+      border: 1px solid #7f1d1d;
+      color: #f87171;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .auth-switch a {
+      color: #38bdf8;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .auth-switch a:hover { text-decoration: underline; }
+
+    /* Top bar */
+    #topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+
+    #user-info {
+      font-size: 0.82rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Auth Overlay -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h2 id="auth-title">Welcome back</h2>
+    <p id="auth-subtitle">Sign in to your Mashboard</p>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-fields">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="auth-email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" />
+      </div>
+    </div>
+    <button style="width:100%" id="auth-submit-btn" onclick="submitAuth()">Sign In</button>
+    <div class="auth-switch">
+      <span id="auth-switch-text">Don't have an account?</span>
+      <a onclick="toggleAuthMode()"> <span id="auth-switch-link">Sign Up</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" style="display:none">
+
+  <div id="topbar">
+    <div>
+      <h1>Exercise Mashboard</h1>
+      <p class="subtitle" id="today-label"></p>
+    </div>
+    <div id="user-info">
+      <span id="user-email-display"></span>
+      <button class="ghost" onclick="signOut()" style="padding:6px 14px;font-size:0.8rem">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="stat-card">
+      <div class="stat-label">Today's Duration</div>
+      <div class="stat-value" id="stat-duration">0<span class="stat-unit">min</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Calories Burned</div>
+      <div class="stat-value" id="stat-calories">0<span class="stat-unit">kcal</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sessions Today</div>
+      <div class="stat-value" id="stat-sessions">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Weekly Total</div>
+      <div class="stat-value" id="stat-weekly">0<span class="stat-unit">min</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Log Exercise</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Exercise Type</label>
+        <select id="input-type">
+          <option value="Running">🏃 Running</option>
+          <option value="Walking">🚶 Walking</option>
+          <option value="Cycling">🚴 Cycling</option>
+          <option value="Swimming">🏊 Swimming</option>
+          <option value="Gym / Weights">🏋️ Gym / Weights</option>
+          <option value="Yoga">🧘 Yoga</option>
+          <option value="HIIT">⚡ HIIT</option>
+          <option value="Sports">⚽ Sports</option>
+          <option value="Other">🏅 Other</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:110px">
+        <label>Duration (min)</label>
+        <input type="number" id="input-duration" min="1" max="600" placeholder="30" />
+      </div>
+      <div class="form-group" style="max-width:130px">
+        <label>Calories (optional)</label>
+        <input type="number" id="input-calories" min="0" max="5000" placeholder="200" />
+      </div>
+      <div class="form-group" style="max-width:160px">
+        <label>Notes (optional)</label>
+        <input type="text" id="input-notes" placeholder="e.g. felt great" maxlength="60" />
+      </div>
+      <button onclick="logExercise()">+ Log</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Today's Sessions</div>
+    <div class="log-list" id="log-list">
+      <div class="empty-state">No sessions logged yet. Add one above!</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">This Week (minutes per day)</div>
+    <div class="chart" id="weekly-chart"></div>
+  </div>
+
+</div>
+
+<script>
+  const API = '/api';
+
+  const ICONS = {
+    'Running': '🏃', 'Walking': '🚶', 'Cycling': '🚴', 'Swimming': '🏊',
+    'Gym / Weights': '🏋️', 'Yoga': '🧘', 'HIIT': '⚡', 'Sports': '⚽', 'Other': '🏅'
+  };
+
+  let authMode = 'login';
+
+  function getToken() { return localStorage.getItem('mash_token'); }
+  function getEmail() { return localStorage.getItem('mash_email'); }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
+  }
+
+  function todayKey() { return new Date().toISOString().slice(0, 10); }
+
+  function getLast7Days() {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().slice(0, 10));
+    }
+    return days;
+  }
+
+  function toggleAuthMode() {
+    authMode = authMode === 'login' ? 'signup' : 'login';
+    const isLogin = authMode === 'login';
+    document.getElementById('auth-title').textContent = isLogin ? 'Welcome back' : 'Create account';
+    document.getElementById('auth-subtitle').textContent = isLogin ? 'Sign in to your Mashboard' : 'Start tracking your exercise';
+    document.getElementById('auth-submit-btn').textContent = isLogin ? 'Sign In' : 'Sign Up';
+    document.getElementById('auth-switch-text').textContent = isLogin ? "Don't have an account?" : 'Already have an account?';
+    document.getElementById('auth-switch-link').textContent = isLogin ? 'Sign Up' : 'Sign In';
+    document.getElementById('auth-error').style.display = 'none';
+  }
+
+  async function submitAuth() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const errorEl = document.getElementById('auth-error');
+    errorEl.style.display = 'none';
+
+    if (!email || !password) {
+      errorEl.textContent = 'Please enter your email and password.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/signup';
+    const res = await fetch(`${API}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      errorEl.textContent = data.error || 'Something went wrong.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    localStorage.setItem('mash_token', data.token);
+    localStorage.setItem('mash_email', data.email);
+    showDashboard();
+  }
+
+  function signOut() {
+    localStorage.removeItem('mash_token');
+    localStorage.removeItem('mash_email');
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('auth-email').value = '';
+    document.getElementById('auth-password').value = '';
+  }
+
+  function showDashboard() {
+    document.getElementById('auth-overlay').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('user-email-display').textContent = getEmail();
+    const today = new Date();
+    document.getElementById('today-label').textContent =
+      today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    render();
+  }
+
+  async function logExercise() {
+    const type = document.getElementById('input-type').value;
+    const duration = parseInt(document.getElementById('input-duration').value);
+    const calories = parseInt(document.getElementById('input-calories').value) || 0;
+    const notes = document.getElementById('input-notes').value.trim();
+
+    if (!duration || duration < 1) { alert('Please enter a duration in minutes.'); return; }
+
+    await fetch(`${API}/exercises`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        type, duration, calories, notes,
+        logged_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        date: todayKey(),
+      }),
+    });
+
+    document.getElementById('input-duration').value = '';
+    document.getElementById('input-calories').value = '';
+    document.getElementById('input-notes').value = '';
+    await render();
+  }
+
+  async function deleteEntry(id) {
+    await fetch(`${API}/exercises/${id}`, { method: 'DELETE', headers: authHeaders() });
+    await render();
+  }
+
+  async function render() {
+    const [todayEntries, weekData] = await Promise.all([
+      fetch(`${API}/exercises?date=${todayKey()}`, { headers: authHeaders() }).then(r => r.json()),
+      fetch(`${API}/exercises/week`, { headers: authHeaders() }).then(r => r.json()),
+    ]);
+
+    const totalDuration = todayEntries.reduce((s, e) => s + e.duration, 0);
+    const totalCalories = todayEntries.reduce((s, e) => s + (e.calories || 0), 0);
+    const weeklyMinutes = weekData.reduce((s, r) => s + Number(r.total_duration), 0);
+
+    document.getElementById('stat-duration').innerHTML = `${totalDuration}<span class="stat-unit">min</span>`;
+    document.getElementById('stat-calories').innerHTML = `${totalCalories}<span class="stat-unit">kcal</span>`;
+    document.getElementById('stat-sessions').textContent = todayEntries.length;
+    document.getElementById('stat-weekly').innerHTML = `${weeklyMinutes}<span class="stat-unit">min</span>`;
+
+    const list = document.getElementById('log-list');
+    if (todayEntries.length === 0) {
+      list.innerHTML = '<div class="empty-state">No sessions logged yet. Add one above!</div>';
+    } else {
+      list.innerHTML = todayEntries.map(e => `
+        <div class="log-item">
+          <div class="log-left">
+            <div class="log-icon">${ICONS[e.type] || '🏅'}</div>
+            <div>
+              <div class="log-name">${e.type}</div>
+              <div class="log-meta">${e.logged_time || ''}${e.notes ? ' · ' + e.notes : ''}</div>
+            </div>
+          </div>
+          <div class="log-badges">
+            <span class="badge highlight">${e.duration} min</span>
+            ${e.calories ? `<span class="badge">${e.calories} kcal</span>` : ''}
+            <button class="danger" onclick="deleteEntry(${e.id})">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    renderChart(weekData);
+  }
+
+  function renderChart(weekData) {
+    const days = getLast7Days();
+    const byDate = {};
+    weekData.forEach(r => { byDate[r.date.slice(0, 10)] = Number(r.total_duration); });
+    const totals = days.map(d => byDate[d] || 0);
+    const maxVal = Math.max(...totals, 1);
+    const today = todayKey();
+    const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    document.getElementById('weekly-chart').innerHTML = days.map((d, i) => {
+      const val = totals[i];
+      const pct = Math.round((val / maxVal) * 100);
+      const isToday = d === today;
+      const label = dayLabels[new Date(d + 'T12:00:00').getDay()];
+      return `
+        <div class="bar-col">
+          <div class="bar${isToday ? ' today' : val === 0 ? ' empty' : ''}" style="height:${pct}%" title="${val} min"></div>
+          <div class="bar-label">${label}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // On load: check for existing token
+  if (getToken()) {
+    showDashboard();
+  }
+
+  // Allow pressing Enter to submit auth
+  document.getElementById('auth-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitAuth();
+  });
+</script>
+</body>
+</html>
